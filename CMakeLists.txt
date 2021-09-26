@@ -60,14 +60,6 @@ if((BUILD_FLAVOR STREQUAL "DEBUG") OR (BUILD_FLAVOR STREQUAL "RELEASE"))
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffile-prefix-map=../../= ")
 endif()
 
-# gtest header
-#
-include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/gtest/include")
-
-# build gtest, we don't need the additional cxxflags to build gtest.
-#
-add_subdirectory(gtest)
-
 # Append extra cxx warning flags
 #
 SET(EXTRA_WARNING_FLAGS "-Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-unused-macros -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-padded -Wno-alloca -Wno-missing-prototypes -Wno-zero-length-array -Werror ")
@@ -132,34 +124,10 @@ add_subdirectory(fastinterp)
 #
 add_subdirectory(pochivm)
 
-# Build application: mini_db_backend
-#
-add_subdirectory(mini_db_backend)
-
 # add the executable
 #
 add_executable(main
-  main.cpp                 
-  test_sanity_arith_expr.cpp      
-  test_sanity_llvm_optimization.cpp
-  test_error_cases.cpp     
-  test_sanity_break_continue.cpp  
-  test_sanity_logical_op.cpp
-  test_fibonacci.cpp       
-  test_sanity_deref.cpp           
-  test_sanity_typecasts.cpp
-  test_find_nth_prime.cpp  
-  test_sanity_irdump.cpp
-  test_sanity_bitcode.cpp
-  test_call_cpp_func.cpp
-  test_catch_throw.cpp
-  test_metavar_framework.cpp
-  test_fast_interp_internals.cpp
-  test_fast_interp.cpp
-  test_paper_microbenchmarks.cpp
-  test_sanity_pointer_arithmetic.cpp
-  test_mini_db_backend_unit_test.cpp
-  test_generated_function_pointer.cpp
+  main.cpp
 )
 
 # Important to link runtime using '--whole-archive'
@@ -171,9 +139,7 @@ target_link_libraries(main PUBLIC
 )
 
 target_link_libraries(main PUBLIC
-  gtest
   pochivm
-  mini_db_backend
   ${LLVM_EXTRA_LINK_LIBRARIES} 
 )
 
