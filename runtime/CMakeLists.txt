@@ -2,8 +2,6 @@
 #
 SET(SOURCES
   test_classes.cpp
-  test_classes_2.cpp
-  test_fn_stress.cpp
 )
 
 # !!! DO NOT MODIFY BELOW !!! 

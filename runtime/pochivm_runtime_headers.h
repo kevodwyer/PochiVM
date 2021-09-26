@@ -13,6 +13,3 @@
 // Some test classes used in unit test
 //
 #include "common.h"
-#include "test_classes.h"
-#include "test_fn_stress.h"
-#include "mini_db_backend.h"

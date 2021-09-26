@@ -1,1 +1,0 @@
-Function BadFn: illegal reuse of AST node (AstNodeType = AstCallExpr)
