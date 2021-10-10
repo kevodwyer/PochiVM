@@ -106,6 +106,34 @@ static void RegisterRuntimeLibrary()
     RegisterMemberObject<&std::pair<const uintptr_t, uintptr_t>::second>();
 
     RegisterConstructor<std::vector<uintptr_t>, size_t>();
+
+    // Register the constructor, which takes no additional parameters
+    RegisterConstructor<Tutorial101>();
+    // Register member function Increment(int value)
+    RegisterMemberFn<&Tutorial101::Increment>();
+    // Register member function Print()
+    RegisterMemberFn<&Tutorial101::Print>();
+
+    RegisterMemberFn<&Tutorial101::opJUMP>();
+    RegisterMemberFn<&Tutorial101::opBNE>();
+    RegisterMemberFn<&Tutorial101::opLOAD_SP>();
+    RegisterMemberFn<&Tutorial101::opLOAD_EAX_MEM>();
+    RegisterMemberFn<&Tutorial101::opLOAD_EAX_IB>();
+    RegisterMemberFn<&Tutorial101::opSTORE_EAX>();
+    RegisterMemberFn<&Tutorial101::opLOAD_EBX_MEM>();
+    RegisterMemberFn<&Tutorial101::opLOAD_EBX_IB>();
+    RegisterMemberFn<&Tutorial101::opSTORE_EBX>();
+    RegisterMemberFn<&Tutorial101::opSTORE_1>();
+    RegisterMemberFn<&Tutorial101::opINC>();
+    RegisterMemberFn<&Tutorial101::opADD>();
+    RegisterMemberFn<&Tutorial101::opMUL>();
+    RegisterMemberFn<&Tutorial101::opDIV>();
+    RegisterMemberFn<&Tutorial101::opXOR>();
+
+    // Register member object 'm_x'
+    RegisterMemberObject<&Tutorial101::m_x>();
+    RegisterMemberObject<&Tutorial101::opCounter>();
+
 }
 
 // DO NOT MODIFY
