@@ -117,8 +117,13 @@ int main(int argc, char **argv) {
     AutoThreadErrorContext arc;
     AutoThreadLLVMCodegenContext alc;
 
-    uint8_t registers[4] = {0,0,0,0};
-    uint8_t memory[128] = {0};
+    //uint8_t registers[4] = {0,0,0,0};
+    uint8_t* registers = new uint8_t[static_cast<size_t>(4)];
+    memset(registers, 0, sizeof(uint8_t), * static_cast<size_t>(4));
+    //uint8_t memory[128] = {0};
+    uint8_t* memory = new uint8_t[static_cast<size_t>(128)];
+    memset(memory, 0, sizeof(uint8_t), * static_cast<size_t>(128));
+    
     Tutorial101 computer;
     init(memory);
     uint8_t opCodes[10] = {0};
@@ -126,6 +131,7 @@ int main(int argc, char **argv) {
     uint8_t offset = registers[IP];
     int compiledCalls = 0;
     SimpleJIT jit;
+    NewModule("test"); //here??
 
     while (true) {
         uint8_t op = memory[offset++];
@@ -142,6 +148,7 @@ int main(int argc, char **argv) {
                     compiledCalls++;
                     std::string fnName = "call_cpp_fn";
                     fnName += std::to_string(index);
+                    //eventually FastInterpFunction<FnPrototype> interpFn = thread_pochiVMContext->m_curModule->GetFastInterpGeneratedFunction<FnPrototype>(fnName);
                     FnPrototype jitFn = jit.GetFunction<FnPrototype>(fnName);
                     jitFn(computer, registers, memory);
 
@@ -162,7 +169,7 @@ int main(int argc, char **argv) {
                     compiledOpCodes[static_cast<unsigned long>(index)] = ops;
                     numberOfCompiledFunctions++;
                     if (numberOfCompiledFunctions == 2) {
-                        NewModule("test");
+                        //NewModule("test");
                         for(unsigned long i=0; i < 2; i++) {
                             std::vector<int> currOps = compiledOpCodes[i];
                             std::string fnName = "call_cpp_fn";
@@ -195,7 +202,7 @@ int main(int argc, char **argv) {
                             }
                         }
                         TestAssert(thread_pochiVMContext->m_curModule->Validate());
-
+						//eventually thread_pochiVMContext->m_curModule->PrepareForFastInterp();
                         thread_pochiVMContext->m_curModule->EmitIR();
                         thread_pochiVMContext->m_curModule->OptimizeIR(1);
                         jit.SetModule(thread_pochiVMContext->m_curModule);
