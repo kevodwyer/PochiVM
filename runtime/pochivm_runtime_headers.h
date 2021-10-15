@@ -13,3 +13,4 @@
 // Some test classes used in unit test
 //
 #include "common.h"
+#include "tutorial101.h"

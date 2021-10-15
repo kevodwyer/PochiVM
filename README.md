@@ -1,7 +1,8 @@
 
-Template for a [PochiVM](https://sillycross.github.io/PochiVM) application
+Attempt at using [PochiVM](https://sillycross.github.io/PochiVM) to build a [toy dynamic core](https://github.com/kevodwyer/dynamic-core) for a toy emulator.
+Status: failed
 
-to build and run
+to build
 
 assumes running inside a ubuntu 18.04 virtual machine
 
@@ -22,8 +23,7 @@ rm -f llvm.tar.xz
 
 modify directory in ccache.conf and copy to /etc/ccache.conf
 
-
-
+use either [debug/release] in following
 
 python3 pochivm-build cmake debug
 
