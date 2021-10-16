@@ -119,10 +119,10 @@ int main(int argc, char **argv) {
 
     //uint8_t registers[4] = {0,0,0,0};
     uint8_t* registers = new uint8_t[static_cast<size_t>(4)];
-    memset(registers, 0, sizeof(uint8_t), * static_cast<size_t>(4));
+    memset(registers, 0, sizeof(uint8_t) * static_cast<size_t>(4));
     //uint8_t memory[128] = {0};
     uint8_t* memory = new uint8_t[static_cast<size_t>(128)];
-    memset(memory, 0, sizeof(uint8_t), * static_cast<size_t>(128));
+    memset(memory, 0, sizeof(uint8_t) * static_cast<size_t>(128));
     
     Tutorial101 computer;
     init(memory);
@@ -226,6 +226,8 @@ int main(int argc, char **argv) {
     //int val = jitFn(computer);
     //printf("\ndone =%d\n", val);
     printf("\ndone\n");
+	delete [] registers;
+    delete [] memory;
     return 0;
 }
 
