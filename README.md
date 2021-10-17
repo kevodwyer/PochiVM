@@ -1,16 +1,6 @@
 
 Attempt at using [PochiVM](https://sillycross.github.io/PochiVM) to build a [toy dynamic core](https://github.com/kevodwyer/dynamic-core) for a toy emulator.
 
-Status: I think all the code is there - not functional yet...
-
-Interp mode:
-
-pochivm/function_proto_fastinterp.cpp:566: void PochiVM::AstFunction::PrepareForFastInterp(): Assertion `!body.IsEmpty()' failed.
-
-JIT mode:
-
-Cannot allocate unsized type  %param_0 = alloca %class.Tutorial101 storing unsized types is not allowed
-
 
 to build
 

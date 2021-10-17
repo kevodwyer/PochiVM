@@ -5,14 +5,9 @@
 #include <vector>
 #include "runtime/tutorial101.h"
 
-#include "codegen_context.hpp"
-#include "pochivm.h"              // For all PochiVM APIs
-#include "test_util_helper.h"
+#include "pochivm.h"
 
 using namespace PochiVM;          // All PochiVM APIs live in this namespace
-
-//using FnPrototype = void(*)(uint8_t*, uint8_t*);
-//using FnPrototype = int(*)(Tutorial101);
 using FnPrototype = void(*)(Tutorial101, uint8_t*, uint8_t*);
 
 const int MAX_FUNCTIONS = 10;
@@ -20,9 +15,17 @@ const int MAX_FUNCTIONS = 10;
 static int indexToHash[MAX_FUNCTIONS];
 static int indexToFreq[MAX_FUNCTIONS];
 static std::array<std::vector<int>, MAX_FUNCTIONS> compiledOpCodes;
-static int numberOfCompiledFunctions = 0;
 
-static bool allowedOpcodes[16] = {false,false,false,false,true,false,true,true,false,true,true,true,true,true,true,true};
+static int numberOfCompiledFunctions = 0;
+//hash=1880050 index=1 [0 4], [1 11], [2 6]
+//static bool allowedOpcodes[16] = {false,false,false,false,true,false,true,false,false,false,false,true,false,false,false,false};
+//hash=748804039 index=0 [0 4], [1 15], [2 14], [3 7], [4 12], [5 6]
+static bool allowedOpcodes[16] = {false,false,false,false,true,false,true,true,false,false,false,false,true,false,true,true};
+//default
+//static bool allowedOpcodes[16] = {false,false,false,false,true,false,true,true,false,true,true,true,true,true,true,true};
+//none
+//static bool allowedOpcodes[16] = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+
 
 void incrementFrequency(int index) {
     if (index >=0) {
@@ -105,11 +108,12 @@ void init(uint8_t* memory) {
     }
 }
 
-int main(int argc, char **argv) {
-
-    llvm::InitLLVM X(argc, argv);
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
+void mainLoop( uint8_t* registers,  uint8_t* memory) {
+    Tutorial101 computer;
+    uint8_t opCodes[10] = {0};
+    int opCodesLength = 0;
+    uint8_t offset = registers[IP];
+    int compiledCalls = 0;
 
     // Initialize PochiVM global contexts for this thread
     // The contexts are automatically destructed on destruction of these variables
@@ -117,22 +121,7 @@ int main(int argc, char **argv) {
     AutoThreadErrorContext arc;
     AutoThreadLLVMCodegenContext alc;
 
-    //uint8_t registers[4] = {0,0,0,0};
-    uint8_t* registers = new uint8_t[static_cast<size_t>(4)];
-    memset(registers, 0, sizeof(uint8_t) * static_cast<size_t>(4));
-    //uint8_t memory[128] = {0};
-    uint8_t* memory = new uint8_t[static_cast<size_t>(128)];
-    memset(memory, 0, sizeof(uint8_t) * static_cast<size_t>(128));
-    
-    Tutorial101 computer;
-    init(memory);
-    uint8_t opCodes[10] = {0};
-    int opCodesLength = 0;
-    uint8_t offset = registers[IP];
-    int compiledCalls = 0;
-    SimpleJIT jit;
-    NewModule("test"); //here??
-
+    NewModule("test");
     while (true) {
         uint8_t op = memory[offset++];
         if (allowedOpcodes[op]) {
@@ -144,14 +133,12 @@ int main(int argc, char **argv) {
                 int index = getIndex(hash);
                 incrementFrequency(index);
                 int freq = getFrequency(index);
-                if (freq > 100 && numberOfCompiledFunctions == 2) {
+                if (freq > 100 && numberOfCompiledFunctions == 1) {
                     compiledCalls++;
                     std::string fnName = "call_cpp_fn";
                     fnName += std::to_string(index);
-                    //eventually FastInterpFunction<FnPrototype> interpFn = thread_pochiVMContext->m_curModule->GetFastInterpGeneratedFunction<FnPrototype>(fnName);
-                    FnPrototype jitFn = jit.GetFunction<FnPrototype>(fnName);
-                    jitFn(computer, registers, memory);
-
+                    FastInterpFunction<FnPrototype> interpFn = thread_pochiVMContext->m_curModule->GetFastInterpGeneratedFunction<FnPrototype>(fnName);
+                    interpFn(computer, registers, memory);
                     opCodesLength = 0;
                     if(!computer.decodeOp(op, registers, memory)) {
                         break;
@@ -168,8 +155,8 @@ int main(int argc, char **argv) {
                     }
                     compiledOpCodes[static_cast<unsigned long>(index)] = ops;
                     numberOfCompiledFunctions++;
-                    if (numberOfCompiledFunctions == 2) {
-                        //NewModule("test");
+                    if (numberOfCompiledFunctions == 1) {
+                        /*
                         for(unsigned long i=0; i < 2; i++) {
                             std::vector<int> currOps = compiledOpCodes[i];
                             std::string fnName = "call_cpp_fn";
@@ -200,12 +187,28 @@ int main(int argc, char **argv) {
                                     fn.GetBody().Append(comp.opXOR(regs));
                                 }
                             }
-                        }
-                        TestAssert(thread_pochiVMContext->m_curModule->Validate());
-						//eventually thread_pochiVMContext->m_curModule->PrepareForFastInterp();
-                        thread_pochiVMContext->m_curModule->EmitIR();
-                        thread_pochiVMContext->m_curModule->OptimizeIR(1);
-                        jit.SetModule(thread_pochiVMContext->m_curModule);
+                        }*/
+                        std::vector<int> currOps = compiledOpCodes[0];
+                        std::string fnName = "call_cpp_fn";
+                        fnName += std::to_string(0);
+                        auto [fn, comp, regs, mem] = NewFunction<FnPrototype>(fnName);
+                        fn.SetBody();
+                        //hash=1880050 index=1 [0 4], [1 11], [2 6]
+                        //fn.GetBody().Append(comp.opLOAD_EAX_MEM(regs, mem));
+                        //fn.GetBody().Append(comp.opINC(regs));
+                        //fn.GetBody().Append(comp.opSTORE_EAX(regs, mem));
+
+                        //hash=748804039 index=0 [0 4], [1 15], [2 14], [3 7], [4 12], [5 6]
+                        fn.GetBody().Append(comp.opLOAD_EAX_MEM(regs, mem));
+                        fn.GetBody().Append(comp.opXOR(regs));
+                        fn.GetBody().Append(comp.opDIV(regs));
+                        fn.GetBody().Append(comp.opLOAD_EBX_MEM(regs, mem));
+                        fn.GetBody().Append(comp.opADD(regs));
+                        fn.GetBody().Append(comp.opSTORE_EAX(regs, mem));
+
+                        ReleaseAssert(thread_pochiVMContext->m_curModule->Validate());
+                        thread_pochiVMContext->m_curModule->PrepareForFastInterp();
+                        printf("\ndone-compiling");
                     }
                 }
             }
@@ -221,14 +224,18 @@ int main(int argc, char **argv) {
     }
     printf("\nopCounter= %d compiled calls=%d", computer.opCounter, compiledCalls);
 
-    // Retrive the built function, and execute it.
-    //FnPrototype jitFn = jit.GetFunction<FnPrototype>("call_cpp_fn");
-    //int val = jitFn(computer);
-    //printf("\ndone =%d\n", val);
+}
+int main(){
+    //uint8_t registers[4] = {0,0,0,0};
+    uint8_t* registers = new uint8_t[static_cast<size_t>(4)];
+    memset(registers, 0, sizeof(uint8_t) * static_cast<size_t>(4));
+    //uint8_t memory[128] = {0};
+    uint8_t* memory = new uint8_t[static_cast<size_t>(128)];
+    memset(memory, 0, sizeof(uint8_t) * static_cast<size_t>(128));
+
+    init(memory);
+    mainLoop(registers, memory);
+
     printf("\ndone\n");
-	delete [] registers;
-    delete [] memory;
     return 0;
 }
-
-
